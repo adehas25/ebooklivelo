@@ -15,7 +15,7 @@
         - Report Info: Introdução & Capítulo 1 -> Goal: Inform -> Viz/Presentation: Introductory text blocks with key stats -> Interaction: None -> Justification: Provides a high-level overview of the program's value and purpose. Method: HTML/Tailwind.
         - Report Info: Capítulo 2 (Acumulating points methods) -> Goal: Organize & Detail -> Viz/Presentation: Interactive Accordions -> Interaction: Click to expand/collapse details for each method -> Justification: Breaks down complex information into digestible, optional sections, reducing cognitive load for the user. Method: HTML/Tailwind/JS.
         - Report Info: Capítulo 3 (Transfer options) -> Goal: Inform & Compare -> Viz/Presentation: Detailed text sections for direct vs. transfer options -> Interaction: None -> Justification: Clearly presents the two core strategies for using points. Method: HTML/Tailwind.
-        - Report Info: Capítulo 4 (LATAM, Smiles, TudoAzul details) -> Goal: Detail & Organize -> Viz/Presentation: Detailed text sections for each partner, followed by summary tables -> Interaction: None -> Justification: Provides a comprehensive, structured breakdown of each major partner's rules and processes. Method: HTML/Tailwind.
+        - Report Info: Capítulo 4 (LATAM, Smiles, TudoAzul details) -> Goal: Detail & Organize -> Viz/Presentation: Detailed text sections for each partner, followed by summary tables adapted for mobile -> Interaction: None -> Justification: Provides a comprehensive, structured breakdown of each major partner's rules and processes in a responsive format. Method: HTML/Tailwind.
         - Report Info: Capítulo 5 (CPM, promotions) -> Goal: Educate & Simulate -> Viz/Presentation: Explanatory text, interactive calculator, and bar chart -> Interaction: User input on calculator for simulation, hover on chart for details -> Justification: Turns abstract concepts (CPM, bonus transfers) into practical, interactive tools, enhancing user understanding and empowerment. Method: HTML/JS/Chart.js.
         - Report Info: Conclusão & Referências -> Goal: Summarize & Reference -> Viz/Presentation: Summary text and formatted list -> Interaction: None -> Justification: Provides a clear wrap-up and cites sources for credibility, adhering to ABNT standards. Method: HTML.
     -->
@@ -80,21 +80,30 @@
                 height: 400px;
             }
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1.5rem;
+        .mobile-table-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 1.25rem;
         }
-        th, td {
-            border: 1px solid #E5E7EB;
-            padding: 12px;
-            text-align: left;
+        .mobile-table-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #E5E7EB;
         }
-        th {
-            background-color: #F9FAFB;
+        .mobile-table-item:last-child {
+            border-bottom: none;
         }
-        tr:nth-child(even) {
-            background-color: #F9FAFB;
+        .mobile-table-label {
+            font-weight: 600;
+            color: #374151;
+        }
+        .mobile-table-detail {
+            text-align: right;
+            color: #4B5563;
+            max-width: 60%;
         }
     </style>
 </head>
@@ -222,42 +231,84 @@
                         </div>
                         <h4 class="text-lg font-semibold text-gray-700 mb-2 mt-6">Detalhes da Transferência</h4>
                         <p class="text-gray-600 leading-relaxed mb-4">É crucial entender as regras para cada parceiro:</p>
-                        <div class="overflow-x-auto">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Programa</th>
-                                        <th>Proporção Padrão</th>
-                                        <th>Mínimo</th>
-                                        <th>Prazo de Crédito</th>
-                                        <th>Dicas de Bônus</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>**LATAM Pass**</td>
-                                        <td>1 Livelo = 1 ponto</td>
-                                        <td>15.000 pts</td>
-                                        <td>Até 3 dias úteis</td>
-                                        <td>Promoções "Bumerangue", bônus para clientes Clube Livelo/LATAM Pass.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>**Smiles**</td>
-                                        <td>1 Livelo = 1 milha</td>
-                                        <td>10.000 pts</td>
-                                        <td>Até 2h (Clube Livelo)</td>
-                                        <td>Bônus de até 100% ou mais.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>**TudoAzul**</td>
-                                        <td>1 Livelo = 1 ponto</td>
-                                        <td>A partir de 1.000 pts</td>
-                                        <td>Até 2h (com taxa/grátis para Clube Livelo)</td>
-                                        <td>Bônus de até 120%, "Pontos de Volta".</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        
+                        <div class="space-y-4">
+                            <!-- LATAM Pass Mobile Table -->
+                            <div class="mobile-table-card card">
+                                <h5 class="text-xl font-bold text-gray-800 mb-2">LATAM Pass</h5>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Proporção Padrão</span>
+                                    <span class="mobile-table-detail">1 Livelo = 1 ponto</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Mínimo de Transferência</span>
+                                    <span class="mobile-table-detail">15.000 pts</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Prazo de Crédito (Padrão)</span>
+                                    <span class="mobile-table-detail">Até 3 dias úteis</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Prazo de Crédito (Bônus)</span>
+                                    <span class="mobile-table-detail">Até 30 dias após campanha</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Dicas de Bônus Comuns</span>
+                                    <span class="mobile-table-detail">"Bumerangue", bônus para clientes Clube Livelo/LATAM Pass.</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Smiles Mobile Table -->
+                            <div class="mobile-table-card card">
+                                <h5 class="text-xl font-bold text-gray-800 mb-2">Smiles</h5>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Proporção Padrão</span>
+                                    <span class="mobile-table-detail">1 Livelo = 1 milha</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Mínimo de Transferência</span>
+                                    <span class="mobile-table-detail">10.000 pts</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Prazo de Crédito (Imediato)</span>
+                                    <span class="mobile-table-detail">Até 2h (Clube Livelo)</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Prazo de Crédito (Regular)</span>
+                                    <span class="mobile-table-detail">Até 1 dia útil</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Dicas de Bônus Comuns</span>
+                                    <span class="mobile-table-detail">Bônus de até 100% ou mais.</span>
+                                </div>
+                            </div>
+
+                            <!-- TudoAzul Mobile Table -->
+                            <div class="mobile-table-card card">
+                                <h5 class="text-xl font-bold text-gray-800 mb-2">TudoAzul</h5>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Proporção Padrão</span>
+                                    <span class="mobile-table-detail">1 Livelo = 1 ponto</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Mínimo de Transferência</span>
+                                    <span class="mobile-table-detail">A partir de 1.000 pts</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Prazo de Crédito (Imediato)</span>
+                                    <span class="mobile-table-detail">Até 2h (com taxa/grátis para Clube Livelo)</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Prazo de Crédito (Regular)</span>
+                                    <span class="mobile-table-detail">Até 1 dia útil</span>
+                                </div>
+                                <div class="mobile-table-item">
+                                    <span class="mobile-table-label">Dicas de Bônus Comuns</span>
+                                    <span class="mobile-table-detail">Bônus de até 120%, "Pontos de Volta".</span>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -398,7 +449,11 @@
                 content.style.paddingTop = '0';
                 content.style.paddingBottom = '0';
             } else {
-                document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = '0');
+                document.querySelectorAll('.accordion-content').forEach(c => {
+                    c.style.maxHeight = '0';
+                    c.style.paddingTop = '0';
+                    c.style.paddingBottom = '0';
+                });
                 document.querySelectorAll('.accordion-icon').forEach(i => i.style.transform = 'rotate(0deg)');
                 
                 content.style.maxHeight = content.scrollHeight + "px";
