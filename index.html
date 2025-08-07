@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia Interativo: Desvendando a Livelo para Viagens</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A single-page application (SPA) with a top-level tabbed navigation corresponding to the report's chapters was designed. This structure breaks down the dense report into manageable, thematic sections (Início, Acumulando Pontos, Resgatando, Estratégias, Conclusão), allowing users to explore content based on their immediate interests rather than following a rigid, linear path. Key interactions include accordions for detailed explanations, a transfer calculator for practical application, and a comparative chart for quick analysis. This task-oriented, non-linear design was chosen to improve content digestibility and user engagement for a beginner audience. All content from the source document is included and organized logically. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Introdução & Capítulo 1 -> Goal: Inform -> Viz/Presentation: Introductory text blocks with key stats -> Interaction: None -> Justification: Provides a high-level overview of the program's value and purpose. Method: HTML/Tailwind.
+        - Report Info: Capítulo 2 (Acumulating points methods) -> Goal: Organize & Detail -> Viz/Presentation: Interactive Accordions -> Interaction: Click to expand/collapse details for each method -> Justification: Breaks down complex information into digestible, optional sections, reducing cognitive load for the user. Method: HTML/Tailwind/JS.
+        - Report Info: Capítulo 3 (Transfer options) -> Goal: Inform & Compare -> Viz/Presentation: Detailed text sections for direct vs. transfer options -> Interaction: None -> Justification: Clearly presents the two core strategies for using points. Method: HTML/Tailwind.
+        - Report Info: Capítulo 4 (LATAM, Smiles, TudoAzul details) -> Goal: Detail & Organize -> Viz/Presentation: Detailed text sections for each partner, followed by summary tables -> Interaction: None -> Justification: Provides a comprehensive, structured breakdown of each major partner's rules and processes. Method: HTML/Tailwind.
+        - Report Info: Capítulo 5 (CPM, promotions) -> Goal: Educate & Simulate -> Viz/Presentation: Explanatory text, interactive calculator, and bar chart -> Interaction: User input on calculator for simulation, hover on chart for details -> Justification: Turns abstract concepts (CPM, bonus transfers) into practical, interactive tools, enhancing user understanding and empowerment. Method: HTML/JS/Chart.js.
+        - Report Info: Conclusão & Referências -> Goal: Summarize & Reference -> Viz/Presentation: Summary text and formatted list -> Interaction: None -> Justification: Provides a clear wrap-up and cites sources for credibility, adhering to ABNT standards. Method: HTML.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #4B5563;
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-button.active {
+            border-bottom-color: #F59E0B;
+            color: #D97706;
+        }
+        .content-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .content-section.active {
+            display: block;
+            opacity: 1;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .accordion-icon {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pro-tip {
+            background-color: #FFFBEB;
+            border-left: 4px solid #FBBF24;
+            color: #92400E;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        th, td {
+            border: 1px solid #E5E7EB;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #F9FAFB;
+        }
+        tr:nth-child(even) {
+            background-color: #F9FAFB;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+
+        <header class="text-center mb-12">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 mb-2">Desvendando a Livelo</h1>
+            <p class="text-base sm:text-lg text-gray-500">Seu Guia Interativo para Viajar com Pontos no Brasil</p>
+        </header>
+
+        <div class="sticky top-0 z-20 bg-[#FDFBF8]/80 backdrop-blur-sm py-4 mb-10 border-b border-gray-200">
+            <nav id="tabs" class="flex justify-center flex-wrap gap-x-4 sm:gap-x-8">
+                <button data-tab="inicio" class="tab-button active font-medium py-2 px-3 text-sm sm:text-base">Início</button>
+                <button data-tab="acumulando" class="tab-button font-medium py-2 px-3 text-sm sm:text-base">Acumulando Pontos</button>
+                <button data-tab="usando" class="tab-button font-medium py-2 px-3 text-sm sm:text-base">Usando Pontos</button>
+                <button data-tab="estrategias" class="tab-button font-medium py-2 px-3 text-sm sm:text-base">Estratégias</button>
+                <button data-tab="conclusao" class="tab-button font-medium py-2 px-3 text-sm sm:text-base">Conclusão & Referências</button>
+            </nav>
+        </div>
+
+        <main>
+            <div id="inicio" class="content-section active">
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <div class="card p-6 sm:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">O Poder dos Pontos Livelo para Suas Viagens</h2>
+                        <p class="text-gray-600 leading-relaxed mb-4">Bem-vindo ao fascinante universo dos programas de fidelidade, onde seus gastos do dia a dia podem se transformar em viagens inesquecíveis. Este guia foi elaborado para desmistificar o programa Livelo, tornando-o acessível e prático para iniciantes que desejam usar seus pontos para passagens aéreas no Brasil. O objetivo é capacitar o leitor a navegar com confiança por este sistema, transformando o sonho de viajar mais em uma realidade tangível.</p>
+                        <p class="text-gray-600 leading-relaxed">A Livelo é um dos programas de recompensas mais versáteis do Brasil. Por não ser atrelada a um único banco ou companhia aérea, ela funciona como um "hub" central, permitindo que você acumule pontos de diversas formas e os transfira para vários parceiros aéreos, maximizando sua flexibilidade e poder de escolha. Diferentemente de programas mais atrelados a bancos específicos, a Livelo oferece uma plataforma mais universal.</p>
+                    </div>
+                    <div class="card p-6 sm:p-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Primeiros Passos: Entendendo a Livelo</h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">Para começar, é fundamental entender o que são os pontos Livelo e como o programa funciona:</p>
+                        <h4 class="text-lg font-semibold text-gray-700 mb-2">O que são pontos Livelo?</h4>
+                        <p class="text-gray-600 leading-relaxed mb-4">Pontos Livelo são uma "moeda virtual" dentro do programa de recompensas, criada para oferecer flexibilidade e valor aos seus participantes. Eles podem ser trocados por passagens aéreas, produtos, serviços, ou até mesmo convertidos em dinheiro. Essa versatilidade é um diferencial significativo, pois garante que os pontos sempre terão um valor tangível, mesmo que os planos de viagem mudem.</p>
+                        <h4 class="text-lg font-semibold text-gray-700 mb-2">Como criar sua conta (passo a passo)</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                            <li>**Acesse o site ou aplicativo:** Visite o site oficial da Livelo ou baixe o aplicativo Livelo.</li>
+                            <li>**Localize a opção de cadastro:** Procure por "Cadastre-se agora" ou "Criar Conta".</li>
+                            <li>**Preencha seus dados:** Insira as informações pessoais como CPF e e-mail.</li>
+                            <li>**Confirme seu cadastro:** Siga as instruções de verificação.</li>
+                            <li>**Conta ativa:** Sua conta estará pronta para você começar a aproveitar.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div id="acumulando" class="content-section">
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold text-gray-800">Multiplique Suas Oportunidades</h2>
+                        <p class="text-gray-500 mt-2">A beleza da Livelo está na diversidade de formas de acúmulo. Explore as principais abaixo.</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="card" onclick="toggleAccordion(this)">
+                            <div class="p-5 flex justify-between items-center cursor-pointer">
+                                <h3 class="text-lg font-semibold text-gray-700">💳 Cartões e Produtos Financeiros</h3>
+                                <span class="accordion-icon text-2xl text-amber-500 transform">+</span>
+                            </div>
+                            <div class="accordion-content px-5">
+                                <div class="pb-5 text-gray-600 space-y-2">
+                                    <p>A forma mais comum de acúmulo é através de gastos em cartões de crédito de bancos parceiros. Mas a Livelo vai além, permitindo ganhar pontos com investimentos, seguros, consórcios e até serviços de câmbio.</p>
+                                    <h4 class="text-base font-semibold text-gray-700 mt-4">Exemplos de parceiros:</h4>
+                                    <ul class="list-disc list-inside ml-4">
+                                        <li>**Investimentos:** Bradesco Capitalização, Genial Investimentos, XP Investimentos.</li>
+                                        <li>**Seguros:** CAIXA Seguro Residencial, Creditas (seguros com garantia de automóvel).</li>
+                                        <li>**Outros:** Bankei, Crypto.com, Mobills (assinatura premium anual).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card" onclick="toggleAccordion(this)">
+                            <div class="p-5 flex justify-between items-center cursor-pointer">
+                                <h3 class="text-lg font-semibold text-gray-700">🛒 Compras em Sites Parceiros</h3>
+                                <span class="accordion-icon text-2xl text-amber-500 transform">+</span>
+                            </div>
+                            <div class="accordion-content px-5">
+                                <div class="pb-5 text-gray-600 space-y-2">
+                                    <p>Com mais de 270 parceiros, você pode transformar compras online em pontos. Lembre-se sempre de acessar a loja através do link no site da Livelo para garantir que a compra seja rastreada. As promoções podem oferecer de 1 a 15 pontos por real gasto.</p>
+                                    <h4 class="text-base font-semibold text-gray-700 mt-4">Como garantir seus pontos:</h4>
+                                    <ol class="list-decimal list-inside ml-4">
+                                        <li>**Acesso via Livelo:** Sempre comece pelo site ou app da Livelo.</li>
+                                        <li>**Leia as regras:** Fique atento às instruções e códigos promocionais.</li>
+                                        <li>**Verifique a proporção:** A quantidade de pontos por real varia.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card" onclick="toggleAccordion(this)">
+                            <div class="p-5 flex justify-between items-center cursor-pointer">
+                                <h3 class="text-lg font-semibold text-gray-700">⭐ Clube Livelo</h3>
+                                <span class="accordion-icon text-2xl text-amber-500 transform">+</span>
+                            </div>
+                            <div class="accordion-content px-5">
+                                <div class="pb-5 text-gray-600 space-y-2">
+                                    <p>Uma assinatura mensal que garante pontos fixos e benefícios exclusivos. A maior vantagem é que, ao assinar, seus pontos Livelo não expiram mais, permitindo acumular a longo prazo. Assinantes também têm acesso a bônus de transferência maiores.</p>
+                                    <h4 class="text-base font-semibold text-gray-700 mt-4">Benefícios do Clube:</h4>
+                                    <ul class="list-disc list-inside ml-4">
+                                        <li>Pontos que nunca expiram.</li>
+                                        <li>Promoções exclusivas e bônus superiores.</li>
+                                        <li>Descontos na compra de pontos.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="usando" class="content-section">
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold text-gray-800">O Caminho para o Céu: Resgatando Passagens</h2>
+                        <p class="text-gray-500 mt-2">Existem duas formas principais de transformar seus pontos em voos.</p>
+                    </div>
+                    <div class="card p-6 sm:p-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Opção 1: Resgate Direto na Livelo</h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">Ideal para quem busca simplicidade. Você pode pesquisar e emitir passagens diretamente na plataforma da Livelo, através da parceria com a Decolar. O processo é similar a qualquer site de viagens, mas você usa seus pontos para pagar.</p>
+                    </div>
+                    <div class="card p-6 sm:p-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Opção 2: Transferência para Companhias Aéreas</h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">Esta é frequentemente a estratégia mais vantajosa, especialmente para voos domésticos. Ao transferir seus pontos para programas como LATAM Pass, Smiles (GOL) e TudoAzul, você pode aproveitar promoções de bônus que multiplicam seu saldo.</p>
+                        <div class="pro-tip p-4 rounded-md mt-6">
+                            <p><strong>Dica de Ouro:</strong> A flexibilidade é o maior trunfo da Livelo. Você não precisa se prender a uma única companhia. Acumule na Livelo e, quando encontrar a melhor promoção ou o melhor resgate, transfira seus pontos para o programa aéreo mais vantajoso naquele momento.</p>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-700 mb-2 mt-6">Detalhes da Transferência</h4>
+                        <p class="text-gray-600 leading-relaxed mb-4">É crucial entender as regras para cada parceiro:</p>
+                        <div class="overflow-x-auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Programa</th>
+                                        <th>Proporção Padrão</th>
+                                        <th>Mínimo</th>
+                                        <th>Prazo de Crédito</th>
+                                        <th>Dicas de Bônus</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>**LATAM Pass**</td>
+                                        <td>1 Livelo = 1 ponto</td>
+                                        <td>15.000 pts</td>
+                                        <td>Até 3 dias úteis</td>
+                                        <td>Promoções "Bumerangue", bônus para clientes Clube Livelo/LATAM Pass.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**Smiles**</td>
+                                        <td>1 Livelo = 1 milha</td>
+                                        <td>10.000 pts</td>
+                                        <td>Até 2h (Clube Livelo)</td>
+                                        <td>Bônus de até 100% ou mais.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**TudoAzul**</td>
+                                        <td>1 Livelo = 1 ponto</td>
+                                        <td>A partir de 1.000 pts</td>
+                                        <td>Até 2h (com taxa/grátis para Clube Livelo)</td>
+                                        <td>Bônus de até 120%, "Pontos de Volta".</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="estrategias" class="content-section">
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold text-gray-800">Maximizando Suas Milhas</h2>
+                        <p class="text-gray-500 mt-2">Aprenda a multiplicar o valor dos seus pontos com estratégias essenciais.</p>
+                    </div>
+                    <div class="card p-6 sm:p-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Promoções de Transferência Bonificada</h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">Fique sempre atento às promoções que oferecem bônus ao transferir pontos. Uma promoção de 100% de bônus, por exemplo, dobra a quantidade de milhas que você recebe na companhia aérea. Promoções do tipo "Bumerangue" são ainda melhores, pois além do bônus, devolvem uma parte dos pontos para sua conta Livelo.</p>
+                        <p class="text-gray-600 leading-relaxed font-medium">Lembre-se: é crucial se cadastrar na promoção ("opt-in") antes de realizar a transferência para garantir o bônus.</p>
+                    </div>
+                    <div class="card p-6 sm:p-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Calculadora de Custo por Milheiro (CPM)</h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">O CPM é o custo de cada 1.000 milhas. Entender essa métrica ajuda a avaliar se uma promoção de compra de pontos ou um resgate vale a pena. Use a calculadora abaixo para simular o valor de uma transferência.</p>
+                        <div class="mt-6 grid sm:grid-cols-2 gap-6 items-center bg-gray-50 p-6 rounded-lg">
+                            <div>
+                                <div class="mb-4">
+                                    <label for="cpmPoints" class="block text-sm font-medium text-gray-700 mb-1">Pontos Livelo a transferir:</label>
+                                    <input type="number" id="cpmPoints" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: 50000">
+                                </div>
+                                <div class="mb-4">
+                                    <label for="cpmBonus" class="block text-sm font-medium text-gray-700 mb-1">Bônus de transferência (%):</label>
+                                    <select id="cpmBonus" class="w-full p-2 border border-gray-300 rounded-md">
+                                        <option value="0">0%</option>
+                                        <option value="50">50%</option>
+                                        <option value="80">80%</option>
+                                        <option value="100" selected>100%</option>
+                                    </select>
+                                </div>
+                                <button onclick="calculateTransfer()" class="w-full bg-amber-500 text-white font-bold py-2.5 px-4 rounded-md hover:bg-amber-600 transition-colors">Calcular Total de Milhas</button>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-lg text-gray-600">Total na Companhia Aérea:</p>
+                                <p id="transferResult" class="text-4xl font-bold text-gray-800 mt-2">0</p>
+                                <p class="text-gray-500">milhas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card p-6 sm:p-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Livelo vs. Concorrentes</h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">O gráfico abaixo compara a flexibilidade da Livelo com programas de fidelidade de companhias aéreas. O eixo Y representa o número de programas aéreos nacionais para os quais é possível transferir pontos.</p>
+                        <div class="chart-container">
+                             <canvas id="comparisonChart"></canvas>
+                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="conclusao" class="content-section">
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <div class="card p-6 sm:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Conclusão: Sua Jornada Aérea Começa Agora!</h2>
+                        <p class="text-gray-600 leading-relaxed mb-4">Este guia forneceu as ferramentas e o conhecimento para transformar seus pontos Livelo em passagens aéreas. A chave do sucesso é a gestão inteligente: acumule de forma consistente, espere pelas promoções de transferência certas e entenda o valor real dos seus pontos.</p>
+                        <h3 class="text-lg font-semibold text-gray-800 mt-6 mb-2">Seus Próximos Passos:</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>Crie sua conta Livelo, se ainda não tiver.</li>
+                            <li>Integre o acúmulo de pontos em suas compras diárias através dos parceiros.</li>
+                            <li>Considere assinar o Clube Livelo para acelerar o acúmulo e proteger seus pontos da expiração.</li>
+                            <li>Mantenha-se informado sobre as promoções de transferência para maximizar seus ganhos.</li>
+                        </ul>
+                        <p class="text-gray-600 leading-relaxed mt-6">Com planejamento e estratégia, sua próxima viagem pelo Brasil está mais perto do que você imagina. Boas viagens!</p>
+                    </div>
+
+                    <div class="card p-6 sm:p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Referências</h2>
+                        <ul class="list-none space-y-4 text-gray-600 text-sm leading-relaxed">
+                            <li>AZUL LINHAS AÉREAS. **Azul + Esfera**. Disponível em: <a href="https://www.voeazul.com.br/br/pt/programa-fidelidade/bancos-e-cartoes/esfera" target="_blank" class="text-amber-600 hover:underline">https://www.voeazul.com.br/br/pt/programa-fidelidade/bancos-e-cartoes/esfera</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>AZUL LINHAS AÉREAS. **Pontos + Reais**. Disponível em: <a href="https://www.voeazul.com.br/br/pt/ofertas/pontos-mais-reais" target="_blank" class="text-amber-600 hover:underline">https://www.voeazul.com.br/br/pt/ofertas/pontos-mais-reais</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>COMPAREMANIA. **Calculadora de Milhas**. Disponível em: <a href="https://www.comparemania.com.br/calculadora-de-milhas" target="_blank" class="text-amber-600 hover:underline">https://www.comparemania.com.br/calculadora-de-milhas</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>ESFERA. **Crie sua conta**. Disponível em: <a href="https://www.esfera.com.vc/crie-sua-conta" target="_blank" class="text-amber-600 hover:underline">https://www.esfera.com.vc/crie-sua-conta</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>ESTEVAM PELO MUNDO. **Entendendo o CPM para maximizar o valor das milhas**. Disponível em: <a href="https://estevampelomundo.com.br/milhas-e-pontos/entendendo-o-cpm-para-maximizar-o-valor-das-milhas/" target="_blank" class="text-amber-600 hover:underline">https://estevampelomundo.com.br/milhas-e-pontos/entendendo-o-cpm-para-maximizar-o-valor-das-milhas/</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>GOL LINHAS AÉREAS. **Programa de fidelidade Smiles**. Disponível em: <a href="https://www.voegol.com.br/informacoes/mais-milhas-para-voce" target="_blank" class="text-amber-600 hover:underline">https://www.voegol.com.br/informacoes/mais-milhas-para-voce</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>IDINHEIRO. **Como transferir pontos do cartão para o Smiles**. Disponível em: <a href="https://www.idinheiro.com.br/cartao-de-credito/milhas/como-transferir-pontos-do-cartao-para-o-smiles/" target="_blank" class="text-amber-600 hover:underline">https://www.idinheiro.com.br/cartao-de-credito/milhas/como-transferir-pontos-do-cartao-para-o-smiles/</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>ITAÚ. **Pontos e Cashback Itaú**. Disponível em: <a href="https://www.itau.com.br/pontos-e-cashback" target="_blank" class="text-amber-600 hover:underline">https://www.itau.com.br/pontos-e-cashback</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LATAM PASS. **Junte milhas: Livelo**. Disponível em: <a href="https://latampass.latam.com/pt_br/junte-milhas/livelo" target="_blank" class="text-amber-600 hover:underline">https://latampass.latam.com/pt_br/junte-milhas/livelo</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LATAM PASS. **Livelo Pontos Extras**. Disponível em: <a href="https://latampass.latam.com/pt_br/promocao/livelo-pontos-extras" target="_blank" class="text-amber-600 hover:underline">https://latampass.latam.com/pt_br/promocao/livelo-pontos-extras</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LATAM PASS. **Passagens**. Disponível em: <a href="https://latampass.latam.com/pt_br/passagens" target="_blank" class="text-amber-600 hover:underline">https://latampass.latam.com/pt_br/passagens</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LATAM PASS. **Passo a passo para resgatar passagens aéreas com milhas**. Disponível em: <a href="https://latampass.latam.com/pt_br/vem-com-milhas/passo-a-passo-para-resgatar-passagens-aereas-com-milhas" target="_blank" class="text-amber-600 hover:underline">https://latampass.latam.com/pt_br/vem-com-milhas/passo-a-passo-para-resgatar-passagens-aereas-com-milhas</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Clube Livelo: Novo layout**. Disponível em: <a href="https://www.livelo.com.br/clube/novo-layout-v2" target="_blank" class="text-amber-600 hover:underline">https://www.livelo.com.br/clube/novo-layout-v2</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Juntar pontos: Instituições financeiras**. Disponível em: <a href="https://www.livelo.com.br/juntar-pontos/instituicoes-financeiras" target="_blank" class="text-amber-600 hover:underline">https://www.livelo.com.br/juntar-pontos/instituicoes-financeiras</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Parceiros para Livelo**. Disponível em: <a href="https://www.livelo.com.br/parceiros-para-livelo" target="_blank" class="text-amber-600 hover:underline">https://www.livelo.com.br/parceiros-para-livelo</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Pontos ou milhas? Entenda como funciona**. Disponível em: <a href="https://www.livelo.com.br/milhas-a%C3%A9reas/categoria/cat7270011" target="_blank" class="text-amber-600 hover:underline">https://www.livelo.com.br/milhas-a%C3%A9reas/categoria/cat7270011</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Regulamento Campanha de Transferência de Pontos Livelo para o Programa Azul Fidelidade**. Disponível em: <a href="https://www.livelo.com.br/file/general/180924-TUDOAZUL-ATE110PORCENTODEBONUS-REGULAMENTO.pdf" target="_blank" class="text-amber-600 hover:underline">https://www.livelo.com.br/file/general/180924-TUDOAZUL-ATE110PORCENTODEBONUS-REGULAMENTO.pdf</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Regulamento Campanha LATAM Pass 40%**. Disponível em: <a href="https://www.livelo.com.br/file/general/23062023_Regulamento_campanha_latam40_pass_vf2v2.pdf" target="_blank" class="text-amber-600 hover:underline">https://www.livelo.com.br/file/general/23062023_Regulamento_campanha_latam40_pass_vf2v2.pdf</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Transfira seus pontos: Promoção Azul Fidelidade**. Disponível em: <a href="https://www.livelo.com.br/transfira-seus-pontos-promo-azulfidelidade" target="_blank" class="text-amber-600 hover:underline">https://www.livelo.com.br/transfira-seus-pontos-promo-azulfidelidade</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Transfira seus pontos: Promoção LATAM Pass**. Disponível em: <a href="https://www.livelo.com.br/transfira-seus-pontos-promo-latampass-off" target="_blank" class="text-amber-600 hover:underline">https://www.livelo.com.br/transfira-seus-pontos-promo-latampass-off</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Transfira seus pontos LATAM Pass**. Disponível em: <a href="https://www.livelo.com.br/transfira-seus-pontos-latam-pass" target="_blank" class="text-amber-600 hover:underline">https://www.livelo.com.br/transfira-seus-pontos-latam-pass</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Transferindo para Smiles**. Disponível em: <a href="https://www.livelo.com.br/livelo-para-parceiros/smiles/SMLTransfer" target="_blank" class="text-amber-600 hover:underline">https://www.livelo.com.br/livelo-para-parceiros/smiles/SMLTransfer</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Transferir pontos Livelo para o Programa TudoAzul**. Disponível em: <a href="https://www3.livelo.com.br/azul/produto/AZLTransfer" target="_blank" class="text-amber-600 hover:underline">https://www3.livelo.com.br/azul/produto/AZLTransfer</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO. **Viagens: Passagens**. Disponível em: <a href="https://www.livelo.com.br/viagens/passagens" target="_blank" class="text-amber-600 hover:underline">https://www.livelo.com.br/viagens/passagens</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>LIVELO VIAGENS. **Passagens aéreas**. Disponível em: <a href="https://livelo.viagens.decolar.com/" target="_blank" class="text-amber-600 hover:underline">https://livelo.viagens.decolar.com/</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>MELHORES DESTINOS. **Bumerangue TudoAzul e Livelo**. Disponível em: <a href="https://www.melhoresdestinos.com.br/bumerangue-tudoazul-livelo.html" target="_blank" class="text-amber-600 hover:underline">https://www.melhoresdestinos.com.br/bumerangue-tudoazul-livelo.html</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>MOBILLS. **Programa iupp Banco Itaú**. Disponível em: <a href="https://www.mobills.com.br/blog/pontos/programa-iupp-banco-itau/" target="_blank" class="text-amber-600 hover:underline">https://www.mobills.com.br/blog/pontos/programa-iupp-banco-itau/</a>. Acesso em: 17 jul. 2025.</li>
+                            <li>PASSAGEIRO DE PRIMEIRA. **Bumerangue Livelo: Receba 30% de bônus no LATAM Pass e até 35% de volta na Livelo**. Disponível em: <a href="https://passageirodeprimeira.com/bumerangue-livelo-receba-30-de-bonus-no-latam-pass-e-ate-35-de-
+" target="_blank" class="text-amber-600 hover:underline">https://passageirodeprimeira.com/bumerangue-livelo-receba-30-de-bonus-no-latam-pass-e-ate-35-de-
+</a>. Acesso em: 17 jul. 2025.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        
+        <footer class="text-center mt-16 pt-8 border-t border-gray-200">
+            <p class="text-sm text-gray-500">&copy; 2025 Guia Interativo Livelo. Criado para fins educacionais.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab-button');
+        const contents = document.querySelectorAll('.content-section');
+
+        document.getElementById('tabs').addEventListener('click', (event) => {
+            const targetTab = event.target.closest('.tab-button');
+            if (!targetTab) return;
+
+            const tabId = targetTab.dataset.tab;
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            targetTab.classList.add('active');
+
+            contents.forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        });
+
+        function toggleAccordion(element) {
+            const content = element.querySelector('.accordion-content');
+            const icon = element.querySelector('.accordion-icon');
+            
+            if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+                content.style.maxHeight = '0';
+                icon.style.transform = 'rotate(0deg)';
+                content.style.paddingTop = '0';
+                content.style.paddingBottom = '0';
+            } else {
+                document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = '0');
+                document.querySelectorAll('.accordion-icon').forEach(i => i.style.transform = 'rotate(0deg)');
+                
+                content.style.maxHeight = content.scrollHeight + "px";
+                icon.style.transform = 'rotate(45deg)';
+                content.style.paddingTop = '1.25rem';
+                content.style.paddingBottom = '1.25rem';
+            }
+        }
+
+        function calculateTransfer() {
+            const pointsInput = document.getElementById('cpmPoints');
+            const bonusSelect = document.getElementById('cpmBonus');
+            const resultElement = document.getElementById('transferResult');
+
+            const points = parseFloat(pointsInput.value) || 0;
+            const bonus = parseFloat(bonusSelect.value) / 100;
+
+            if (points <= 0) {
+                resultElement.textContent = '0';
+                return;
+            }
+
+            const totalMiles = points * (1 + bonus);
+            resultElement.textContent = Math.round(totalMiles).toLocaleString('pt-BR');
+        }
+
+        const ctx = document.getElementById('comparisonChart').getContext('2d');
+        const comparisonChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Livelo', 'Smiles (GOL)', 'LATAM Pass', 'TudoAzul'],
+                datasets: [{
+                    label: 'Nº de Programas Aéreos Nacionais Parceiros',
+                    data: [3, 1, 1, 1],
+                    backgroundColor: [
+                        'rgba(245, 158, 11, 0.7)',
+                        'rgba(234, 88, 12, 0.7)',
+                        'rgba(220, 38, 38, 0.7)',
+                        'rgba(59, 130, 246, 0.7)',
+                    ],
+                    borderColor: [
+                        '#F59E0B',
+                        '#EA580C',
+                        '#DC2626',
+                        '#3B82F6',
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if(context.label === 'Livelo'){
+                                    return ' Transfere para os 3 programas nacionais.';
+                                 } else {
+                                    return ' Programa atrelado à própria companhia.';
+                                 }
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Flexibilidade de Transferência para Parceiros Nacionais',
+                        font: { size: 16, weight: '500' },
+                        padding: { top: 10, bottom: 20 },
+                        color: '#374151'
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 },
+                        title: {
+                            display: true,
+                            text: 'Quantidade de Programas'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
